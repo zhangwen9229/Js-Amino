@@ -98,21 +98,22 @@ class Codec {
         JsonDecoder.decodeJson(value, instance)
     }
 
-    marshalBinary(obj, fieldOpts = new FieldOptions()) {
+    marshalBinary(obj, usePrefix = false, fieldOpts = new FieldOptions()) {
         if (!obj) return null
         // let typeInfo = this.lookup(Reflection.typeOf(obj))        
         // if (!typeInfo) return null;
-        
+
         let encodedData = BinaryEncoder.encodeBinary(obj, obj.type, fieldOpts)
         if (obj.info) { //if this object was registered with prefix
             if (obj.info.registered) {
                 encodedData = obj.info.prefix.concat(encodedData)
             }
         }
+        if (usePrefix) {
+            return Encoder.encodeUVarint(encodedData.length).concat(encodedData)
+        }
 
-        let lenBz = Encoder.encodeUVarint(encodedData.length)
-
-        return lenBz.concat(encodedData)
+        return encodedData
     }
 
     unMarshalBinary(bz, instance, fieldOpts = new FieldOptions()) {
@@ -126,14 +127,14 @@ class Codec {
             byteLength
         } = Decoder.decodeUVarint(bz)
         let realbz = bz.slice(byteLength)
-        
-        
+
+
         if (data != realbz.length) throw new RangeError("Wrong length of Encoded Buffer")
         if (!Utils.isEqual(realbz.slice(0, 4), typeInfo.prefix)) {
             throw new TypeError("prefix not match")
         }
-        realbz = bz.slice(byteLength + 4)        
-        BinaryDecoder.decodeBinary(realbz, instance, instance.type,fieldOpts)
+        realbz = bz.slice(byteLength + 4)
+        BinaryDecoder.decodeBinary(realbz, instance, instance.type, fieldOpts)
 
     }
     get typeMap() {
