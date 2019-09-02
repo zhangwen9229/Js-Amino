@@ -122,7 +122,7 @@ class Codec {
         let typeName = Reflection.typeOf(instance)
         let typeInfo = this.lookup(typeName)
         if (!typeInfo) throw new TypeError(`No ${typeName} was registered`)
-        if(usePrefix) {
+        if(!usePrefix) {
             bz = Encoder.encodeUVarint(bz.length).concat(bz)
         }
 
