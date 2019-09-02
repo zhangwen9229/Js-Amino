@@ -116,12 +116,16 @@ class Codec {
         return encodedData
     }
 
-    unMarshalBinary(bz, instance, fieldOpts = new FieldOptions()) {
+    unMarshalBinary(bz, instance, usePrefix = false, fieldOpts = new FieldOptions()) {
         if (bz.length == 0) throw new RangeError("UnmarshalBinary cannot decode empty bytes")
         if (!instance) throw new TypeError("UnmarshalBinary cannot decode to Null instance")
         let typeName = Reflection.typeOf(instance)
         let typeInfo = this.lookup(typeName)
         if (!typeInfo) throw new TypeError(`No ${typeName} was registered`)
+        if(usePrefix) {
+            bz = Encoder.encodeUVarint(bz.length).concat(bz)
+        }
+
         let {
             data, //length of buffer
             byteLength
