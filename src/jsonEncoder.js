@@ -62,6 +62,10 @@ const encodeJson = (instance, type) => {
             {
                 return encodeJsonInterface(tmpInstance)
             }
+        case Types.Boolean: 
+            {
+                return tmpInstance
+            }
         default:
             {
                 console.log("There is no data type to encode:", type)
